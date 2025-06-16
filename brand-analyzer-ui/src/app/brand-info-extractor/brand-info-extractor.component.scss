@@ -109,3 +109,49 @@ h2, h3, h4 {
   margin-top: 5px;
   background-color: #f8f9fa; // Light background for transparent images
 }
+
+// Styles for Color Palettes (reusable for website colors too with minor adjustments if needed)
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; // Gap between items
+  padding-top: 5px;
+}
+
+.color-palette-item {
+  display: flex;
+  flex-direction: column; // Stack swatch and code vertically
+  align-items: center; // Center items
+  gap: 4px; // Gap between swatch and code
+  min-width: 60px; // Ensure items have some width
+  text-align: center;
+}
+
+.color-swatch {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ccc;
+  border-radius: 4px; // Slightly rounded corners for swatches
+  // Add a subtle shadow to lift the swatch a bit
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.color-code {
+  font-size: 0.8em;
+  color: #555;
+  word-break: break-all; // Break long hex codes if needed, though unlikely for standard hex
+}
+
+// Styles for Color Labels (specific to website colors)
+.color-label {
+  font-size: 0.75em;
+  color: #777;
+  text-transform: capitalize; // Make labels like "primary" look nicer
+  margin-top: 2px; // A little space above the label
+}
+
+// Optional: If website-color-item needs specific adjustments
+.website-color-item {
+  // Example: slightly more width if labels are long
+  // min-width: 70px;
+}

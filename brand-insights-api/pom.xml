@@ -18,7 +18,7 @@
     <properties>
         <java.version>1.8</java.version>
         <jsoup.version>1.15.3</jsoup.version>
-        <colorthief.version>0.8.4</colorthief.version>
+        <color-thief-java.version>0.3.1</color-thief-java.version>
     </properties>
 
     <dependencies>
@@ -31,10 +31,11 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+        <!-- New ColorThief dependency from JitPack -->
         <dependency>
-            <groupId>de.androidbiometrics</groupId>
-            <artifactId>colorthief</artifactId>
-            <version>${colorthief.version}</version>
+            <groupId>com.github.vsch</groupId>
+            <artifactId>color-thief-java</artifactId>
+            <version>${color-thief-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -42,6 +43,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- Add JitPack repository -->
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

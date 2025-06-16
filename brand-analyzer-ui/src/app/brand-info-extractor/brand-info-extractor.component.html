@@ -35,15 +35,24 @@
     </div>
 
     <!-- Placeholders for other data sections -->
-    <div class="result-item placeholder-colors" *ngIf="brandData.logoColors && brandData.logoColors.length > 0">
-      <!-- Logo Colors will be implemented next -->
+    <div class="result-item" *ngIf="brandData.logoColors && brandData.logoColors.length > 0">
       <h4>Logo Colors</h4>
-      <p>Display for logo colors to be implemented.</p>
+      <div class="color-palette">
+        <div *ngFor="let color of brandData.logoColors" class="color-palette-item">
+          <div class="color-swatch" [style.background-color]="color" title="{{color}}"></div>
+          <span class="color-code">{{ color }}</span>
+        </div>
+      </div>
     </div>
-    <div class="result-item placeholder-website-colors" *ngIf="brandData.websiteColors && brandData.websiteColors.length > 0">
-      <!-- Website Colors will be implemented next -->
-      <h4>Website Colors</h4>
-      <p>Display for website colors to be implemented.</p>
+    <div class="result-item" *ngIf="brandData.websiteColors && brandData.websiteColors.length > 0">
+      <h4>Top Website Colors</h4>
+      <div class="color-palette">
+        <div *ngFor="let webColor of brandData.websiteColors" class="color-palette-item website-color-item">
+          <div class="color-swatch" [style.background-color]="webColor.colorHex" title="{{webColor.colorHex}} - {{webColor.label}}"></div>
+          <span class="color-code">{{ webColor.colorHex }}</span>
+          <span class="color-label">{{ webColor.label }}</span>
+        </div>
+      </div>
     </div>
      <div class="result-item placeholder-fonts" *ngIf="brandData.fonts && brandData.fonts.length > 0">
       <!-- Fonts will be implemented next -->

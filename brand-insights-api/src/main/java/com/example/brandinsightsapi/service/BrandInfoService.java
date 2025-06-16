@@ -1,7 +1,7 @@
 package com.example.brandinsightsapi.service;
 
 import com.example.brandinsightsapi.dto.BrandInfoResponse;
-import de.androidbiometrics.colorthief.ColorThief;
+import com.vladsch.java.colorthief.ColorThief; // ColorThief import
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
