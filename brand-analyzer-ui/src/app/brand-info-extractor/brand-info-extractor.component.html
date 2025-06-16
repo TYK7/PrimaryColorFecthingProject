@@ -1,0 +1,60 @@
+<div class="extractor-container">
+  <h2>Brand Information Extractor</h2>
+
+  <div class="input-section">
+    <input type="text" [(ngModel)]="websiteUrl"
+           placeholder="Enter website URL (e.g., http://example.com)"
+           (keyup.enter)="fetchBrandData()"
+           [disabled]="isLoading">
+    <button (click)="fetchBrandData()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Fetch Brand Info</span>
+      <span *ngIf="isLoading">Fetching...</span>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-indicator">
+    <p>Loading brand information...</p>
+    <!-- TODO: Add a more visually appealing loading spinner -->
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <p>Error: {{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="brandData && brandData.success" class="results-section">
+    <h3>Results for: <a [href]="websiteUrl" target="_blank" rel="noopener noreferrer">{{ websiteUrl }}</a></h3>
+
+    <div class="result-item" *ngIf="brandData.brandName && brandData.brandName !== 'Brand name not found'">
+      <h4>Brand Name</h4>
+      <p>{{ brandData.brandName }}</p>
+    </div>
+
+    <div class="result-item" *ngIf="brandData.logoUrl">
+      <h4>Brand Logo</h4>
+      <img [src]="brandData.logoUrl" alt="{{ brandData.brandName || 'Brand' }} Logo" class="brand-logo">
+    </div>
+
+    <!-- Placeholders for other data sections -->
+    <div class="result-item placeholder-colors" *ngIf="brandData.logoColors && brandData.logoColors.length > 0">
+      <!-- Logo Colors will be implemented next -->
+      <h4>Logo Colors</h4>
+      <p>Display for logo colors to be implemented.</p>
+    </div>
+    <div class="result-item placeholder-website-colors" *ngIf="brandData.websiteColors && brandData.websiteColors.length > 0">
+      <!-- Website Colors will be implemented next -->
+      <h4>Website Colors</h4>
+      <p>Display for website colors to be implemented.</p>
+    </div>
+     <div class="result-item placeholder-fonts" *ngIf="brandData.fonts && brandData.fonts.length > 0">
+      <!-- Fonts will be implemented next -->
+      <h4>Fonts</h4>
+      <p>Display for fonts to be implemented.</p>
+    </div>
+    <div class="result-item placeholder-images" *ngIf="brandData.imageUrls && brandData.imageUrls.length > 0">
+      <!-- Images will be implemented next -->
+      <h4>Images</h4>
+      <p>Display for images to be implemented.</p>
+    </div>
+
+  </div>
+</div>
