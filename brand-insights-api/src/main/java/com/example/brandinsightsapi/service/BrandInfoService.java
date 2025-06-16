@@ -1,10 +1,11 @@
 package com.example.brandinsightsapi.service;
 
 import com.example.brandinsightsapi.dto.BrandInfoResponse;
-// ColorThief import removed
-// import com.vladsch.java.colorthief.ColorThief;
-// Apache Commons Imaging can be used via Imaging.getBufferedImage, but ImageIO.read is often sufficient and already in use.
-// import org.apache.commons.imaging.Imaging;
+
+// Imports for de.androidpit:color-thief
+import de.androidpit.colorthief.ColorThief;
+import de.androidpit.colorthief.MMCQ; // MMCQ contains CMap and Swatch as inner classes
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
-import java.util.Comparator; // For sorting map entries
+// No need for java.util.Comparator for this ColorThief version's typical usage
 import java.util.Arrays; // For Arrays.asList for helper methods
 import java.util.function.Function; // For Function for helper methods
 
@@ -58,7 +59,7 @@ public class BrandInfoService {
             String logoUrl = extractLogoUrl(document);
             response.setLogoUrl(logoUrl);
             if (logoUrl != null && !logoUrl.isEmpty()) {
-                response.setLogoColors(extractColorsFromLogo(logoUrl)); // This method is refactored
+                response.setLogoColors(extractColorsFromLogo(logoUrl));
             }
 
             response.setWebsiteColors(extractWebsiteColors(document));
@@ -98,6 +99,7 @@ public class BrandInfoService {
         List<String> hexColors = new ArrayList<>();
         HttpURLConnection connection = null;
         InputStream inputStream = null;
+        int colorCount = 8; // Number of dominant colors to extract, matching previous logic
 
         try {
             URL url = new URL(logoUrlString);
@@ -113,62 +115,31 @@ public class BrandInfoService {
                 BufferedImage image = ImageIO.read(inputStream);
 
                 if (image != null) {
-                    Map<Integer, Integer> colorFrequencies = new HashMap<>();
-                    int width = image.getWidth();
-                    int height = image.getHeight();
-                    int pixelSkip = 1; // Process every pixel by default
+                    // Parameters for ColorThief.getColorMap(bufferedImage, colorCount, quality, ignoreWhite)
+                    // quality: 1 - 10 (1 is best but slowest, 10 is fastest but lower quality)
+                    // ignoreWhite: boolean to ignore white pixels
+                    // Let's use a moderate quality (e.g., 5) and not ignore white by default.
+                    // The de.androidpit.colorthief.ColorThief API is ColorThief.getColorMap(image, colorCount)
+                    // and does not have quality/ignoreWhite parameters in the static method.
+                    // It internally uses a quality of 10 and does not ignore white pixels by default.
+                    MMCQ.CMap cmap = ColorThief.getColorMap(image, colorCount);
 
-                    // Dynamically adjust pixelSkip based on image size to balance performance and accuracy
-                    long numPixels = (long) width * height;
-                    if (numPixels > 10000) pixelSkip = 5;      // For images > 100x100 (approx)
-                    if (numPixels > 100000) pixelSkip = 10;     // For images > 300x300 (approx)
-                    if (numPixels > 500000) pixelSkip = 20;     // For larger images
-
-                    // Quantization: mask to reduce color space, e.g., keep top 5 bits of each R,G,B (32 levels per channel)
-                    // This helps group similar colors. Example: 0xF8 = 11111000
-                    int quantizeMask = 0xF8; // More aggressive: 0xF0 (16 levels), Less aggressive: 0xFC (64 levels)
-
-                    for (int y = 0; y < height; y += pixelSkip) {
-                        for (int x = 0; x < width; x += pixelSkip) {
-                            int pixel = image.getRGB(x, y);
-                            int alpha = (pixel >> 24) & 0xff;
-
-                            // Skip fully transparent pixels or pixels with very low alpha (e.g., less than 10%)
-                            if (alpha < 25) {
-                                continue;
+                    if (cmap != null) {
+                        List<MMCQ.Swatch> palette = cmap.palette();
+                        if (palette != null) {
+                            for (MMCQ.Swatch swatch : palette) {
+                                if (swatch != null) {
+                                    int rgb = swatch.getRgb();
+                                    String hexColor = String.format("#%02X%02X%02X",
+                                        (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+                                    hexColors.add(hexColor);
+                                }
                             }
-
-                            int r = (pixel >> 16) & 0xff;
-                            int g = (pixel >> 8) & 0xff;
-                            int b = pixel & 0xff;
-
-                            // Simple check to ignore very light colors (close to white) and very dark (close to black) if desired
-                            // This can help focus on more "brand-specific" colors.
-                            // if ((r > 240 && g > 240 && b > 240) || (r < 15 && g < 15 && b < 15)) {
-                            //     continue;
-                            // }
-
-                            int qr = r & quantizeMask;
-                            int qg = g & quantizeMask;
-                            int qb = b & quantizeMask;
-
-                            int quantizedRGB = (qr << 16) | (qg << 8) | qb;
-                            colorFrequencies.put(quantizedRGB, colorFrequencies.getOrDefault(quantizedRGB, 0) + 1);
-                        }
-                    }
-
-                    if (!colorFrequencies.isEmpty()) {
-                        List<Map.Entry<Integer, Integer>> sortedColors = new ArrayList<>(colorFrequencies.entrySet());
-                        sortedColors.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-
-                        int maxColorsToReturn = Math.min(sortedColors.size(), 8);
-                        for (int i = 0; i < maxColorsToReturn; i++) {
-                            int rgbInt = sortedColors.get(i).getKey();
-                            String hexColor = String.format("#%02X%02X%02X", (rgbInt >> 16) & 0xFF, (rgbInt >> 8) & 0xFF, rgbInt & 0xFF);
-                            hexColors.add(hexColor);
+                        } else {
+                             System.err.println("ColorThief (de.androidpit) palette was null for logo: " + logoUrlString);
                         }
                     } else {
-                        System.err.println("No significant colors found in logo after sampling: " + logoUrlString);
+                         System.err.println("ColorThief.getColorMap (de.androidpit) returned null for logo: " + logoUrlString);
                     }
                 } else {
                     System.err.println("Failed to decode image or image format not supported for logo: " + logoUrlString + ". ImageIO.read returned null.");
@@ -181,7 +152,7 @@ public class BrandInfoService {
         } catch (Exception e) {
             System.err.println("Unexpected error processing logo image " + logoUrlString + ": " + e.getClass().getName() + " - " + e.getMessage());
         } finally {
-            if (inputStream != null) { try { inputStream.close(); } catch (IOException e) { /* ignore */ } }
+            if (inputStream != null) { try { inputStream.close(); } catch (IOException ex) { /* ignore */ } }
             if (connection != null) { connection.disconnect(); }
         }
         return hexColors;
@@ -371,22 +342,21 @@ public class BrandInfoService {
         for (Element img : imgTags) { String src = img.absUrl("src"); if (isValidImageUrl(src)) uniqueImageUrls.add(src); }
         Elements sourceTags = document.select("picture source[srcset]");
         for (Element source : sourceTags) { String srcset = source.attr("srcset"); String[] urls = srcset.split(","); for (String urlEntry : urls) { String trimmedUrlEntry = urlEntry.trim().split("\\s+")[0]; String absoluteUrl = source.absUrl(trimmedUrlEntry); if (isValidImageUrl(absoluteUrl)) uniqueImageUrls.add(absoluteUrl); } }
-        Elements styledElements = document.select("[style*='background-image'], [style*='background']"); // Check for background or background-image
+        Elements styledElements = document.select("[style*='background-image'], [style*='background']");
         for (Element element : styledElements) { String style = element.attr("style"); Matcher matcher = BG_IMAGE_URL_PATTERN.matcher(style); while(matcher.find()){ String bgUrl = matcher.group("url"); String absoluteBgUrl = element.absUrl(bgUrl); if(isValidImageUrl(absoluteBgUrl)) uniqueImageUrls.add(absoluteBgUrl); } }
         return new ArrayList<>(uniqueImageUrls);
     }
 
-    private boolean isValidImageUrl(String url) { // Simplified: just check for http/https and not data URI
+    private boolean isValidImageUrl(String url) {
         if (url == null || url.isEmpty() || url.toLowerCase().startsWith("data:")) return false;
         return (url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://"));
     }
 
-    private static class NamedColorConverter { // Basic map, expand as needed
+    private static class NamedColorConverter {
         private static final Map<String, String> NAMED_COLORS = new HashMap<>();
         static {
             NAMED_COLORS.put("black", "#000000"); NAMED_COLORS.put("white", "#FFFFFF"); NAMED_COLORS.put("red", "#FF0000");
             NAMED_COLORS.put("lime", "#00FF00"); NAMED_COLORS.put("blue", "#0000FF");
-            // ... (Assume comprehensive list from previous steps is here for real use)
         }
         public static String getHex(String name) { return NAMED_COLORS.get(name.toLowerCase()); }
     }

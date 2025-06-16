@@ -18,7 +18,7 @@
     <properties>
         <java.version>1.8</java.version>
         <jsoup.version>1.15.3</jsoup.version>
-        <commons-imaging.version>1.0.0-alpha6</commons-imaging.version>
+        <color-thief.version>1.1.2</color-thief.version> <!-- Version for de.androidpit:color-thief -->
     </properties>
 
     <dependencies>
@@ -31,11 +31,11 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
-        <!-- Apache Commons Imaging dependency -->
+        <!-- ColorThief dependency from de.androidpit -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-imaging</artifactId>
-            <version>${commons-imaging.version}</version>
+            <groupId>de.androidpit</groupId>
+            <artifactId>color-thief</artifactId>
+            <version>${color-thief.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -44,20 +44,8 @@
         </dependency>
     </dependencies>
 
-    <!--
-        JitPack repository removed.
-        Spring Boot parent (spring-boot-starter-parent) includes Maven Central by default.
-        If other custom repositories were needed, they would remain here.
-        An empty <repositories/> tag is valid if no custom repos are needed beyond what parent provides.
-    -->
     <repositories>
-        <!-- Example of keeping the section for future use, or it can be removed if truly empty -->
-        <!--
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
-         -->
+        <!-- No custom repositories needed for these dependencies -->
     </repositories>
 
     <build>
