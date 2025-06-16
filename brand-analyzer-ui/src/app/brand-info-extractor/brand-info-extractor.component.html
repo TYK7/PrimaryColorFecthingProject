@@ -14,27 +14,32 @@
 
   <div *ngIf="isLoading" class="loading-indicator">
     <p>Loading brand information...</p>
-    <!-- TODO: Add a more visually appealing loading spinner -->
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
+  <div *ngIf="errorMessage && !isLoading" class="error-message"> <!-- Only show error if not loading -->
     <p>Error: {{ errorMessage }}</p>
   </div>
 
-  <div *ngIf="brandData && brandData.success" class="results-section">
-    <h3>Results for: <a [href]="websiteUrl" target="_blank" rel="noopener noreferrer">{{ websiteUrl }}</a></h3>
+  <div *ngIf="brandData && brandData.success && !isLoading" class="results-section">
+    <h3 class="results-header" [style.border-bottom-color]="primaryWebsiteColor ? primaryWebsiteColor : null">
+      Results for: <a [href]="websiteUrl" target="_blank" rel="noopener noreferrer" [style.color]="primaryWebsiteColor ? primaryWebsiteColor : null">{{ websiteUrl }}</a>
+    </h3>
 
-    <div class="result-item" *ngIf="brandData.brandName && brandData.brandName !== 'Brand name not found'">
+    <!-- Message for when API is success but no specific data found -->
+    <div *ngIf="!hasMeaningfulResults" class="no-results-message result-item">
+      <p>While the page was fetched successfully, no specific brand information (like a distinct logo, color palettes, unique fonts, or numerous images) could be automatically extracted. The brand name "{{brandData.brandName}}" might be based on the page title or could be a generic placeholder if no other data was found.</p>
+    </div>
+
+    <div class="result-item" *ngIf="brandData.brandName && brandData.brandName.toLowerCase() !== 'brand name not found' && !brandData.brandName.toLowerCase().startsWith('error:')">
       <h4>Brand Name</h4>
       <p>{{ brandData.brandName }}</p>
     </div>
 
     <div class="result-item" *ngIf="brandData.logoUrl">
       <h4>Brand Logo</h4>
-      <img [src]="brandData.logoUrl" alt="{{ brandData.brandName || 'Brand' }} Logo" class="brand-logo">
+      <img [src]="brandData.logoUrl" alt="{{ brandData.brandName || 'Brand' }} Logo" class="brand-logo" loading="lazy">
     </div>
 
-    <!-- Placeholders for other data sections -->
     <div class="result-item" *ngIf="brandData.logoColors && brandData.logoColors.length > 0">
       <h4>Logo Colors</h4>
       <div class="color-palette">
@@ -44,6 +49,7 @@
         </div>
       </div>
     </div>
+
     <div class="result-item" *ngIf="brandData.websiteColors && brandData.websiteColors.length > 0">
       <h4>Top Website Colors</h4>
       <div class="color-palette">
@@ -54,16 +60,25 @@
         </div>
       </div>
     </div>
-     <div class="result-item placeholder-fonts" *ngIf="brandData.fonts && brandData.fonts.length > 0">
-      <!-- Fonts will be implemented next -->
-      <h4>Fonts</h4>
-      <p>Display for fonts to be implemented.</p>
-    </div>
-    <div class="result-item placeholder-images" *ngIf="brandData.imageUrls && brandData.imageUrls.length > 0">
-      <!-- Images will be implemented next -->
-      <h4>Images</h4>
-      <p>Display for images to be implemented.</p>
+
+    <div class="result-item" *ngIf="brandData.fonts && brandData.fonts.length > 0">
+      <h4>Fonts Used</h4>
+      <ul class="font-list">
+        <li *ngFor="let font of brandData.fonts" class="font-list-item">
+          {{ font }}
+        </li>
+      </ul>
     </div>
 
+    <div class="result-item" *ngIf="brandData.imageUrls && brandData.imageUrls.length > 0">
+      <h4>Homepage Images</h4>
+      <div class="image-gallery">
+        <div *ngFor="let imageUrl of brandData.imageUrls; let i = index" class="gallery-item">
+          <a [href]="imageUrl" target="_blank" rel="noopener noreferrer" title="View image {{i + 1}} in new tab">
+            <img [src]="imageUrl" alt="Homepage Image {{i + 1}}" class="gallery-image" loading="lazy">
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -16,6 +16,7 @@ h2, h3, h4 {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  align-items: center; // Vertically align items if button/input have different heights due to text/padding
 
   input[type="text"] {
     flex-grow: 1;
@@ -33,7 +34,7 @@ h2, h3, h4 {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s ease-in-out;
 
     &:disabled {
       background-color: #aaa;
@@ -46,10 +47,11 @@ h2, h3, h4 {
   }
 }
 
-.loading-indicator, .error-message {
+.loading-indicator, .error-message, .no-results-message { // Added .no-results-message here
   margin: 20px 0;
   padding: 15px;
   border-radius: 4px;
+  text-align: center; // Center text for these messages
 }
 
 .loading-indicator {
@@ -67,30 +69,42 @@ h2, h3, h4 {
 .results-section {
   margin-top: 20px;
   border-top: 1px solid #eee;
-  padding-top: 20px;
+  padding-top: 10px; // Slightly reduced padding-top
 
-  h3 a {
-    color: #007bff;
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
+  .results-header { // Targeting the h3 tag
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #eee; // Default border color
+    transition: border-bottom-color 0.3s ease-in-out, color 0.3s ease-in-out; // Added color transition
+
+    a {
+      // Default link color, will be overridden by inline style if primaryWebsiteColor is set
+      color: #007bff;
+      text-decoration: none;
+      transition: color 0.3s ease-in-out; // Added color transition for the link
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }
 
 .result-item {
-  margin-bottom: 15px;
-  padding-bottom: 10px;
+  margin-bottom: 20px; // Increased margin for more separation
+  padding-top: 10px;
+  padding-bottom: 15px;
   border-bottom: 1px dashed #eee;
 
   &:last-child {
     border-bottom: none;
+    margin-bottom: 0; // No margin for the very last item
   }
 
   h4 {
-    margin-top: 0;
-    margin-bottom: 8px;
-    color: #555;
+    font-size: 1.1em;
+    color: #444;
+    margin-top: 0; // Reset margin
+    margin-bottom: 12px;
   }
 
   p {
@@ -107,23 +121,23 @@ h2, h3, h4 {
   border-radius: 4px;
   display: block;
   margin-top: 5px;
-  background-color: #f8f9fa; // Light background for transparent images
+  background-color: #f8f9fa;
 }
 
-// Styles for Color Palettes (reusable for website colors too with minor adjustments if needed)
 .color-palette {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; // Gap between items
-  padding-top: 5px;
+  gap: 10px;
+  padding-top: 8px; // Adjusted from 5px for consistency
+  margin-top: 8px;
 }
 
 .color-palette-item {
   display: flex;
-  flex-direction: column; // Stack swatch and code vertically
-  align-items: center; // Center items
-  gap: 4px; // Gap between swatch and code
-  min-width: 60px; // Ensure items have some width
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 60px;
   text-align: center;
 }
 
@@ -131,27 +145,95 @@ h2, h3, h4 {
   width: 50px;
   height: 50px;
   border: 1px solid #ccc;
-  border-radius: 4px; // Slightly rounded corners for swatches
-  // Add a subtle shadow to lift the swatch a bit
+  border-radius: 4px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .color-code {
   font-size: 0.8em;
   color: #555;
-  word-break: break-all; // Break long hex codes if needed, though unlikely for standard hex
+  word-break: break-all;
 }
 
-// Styles for Color Labels (specific to website colors)
 .color-label {
   font-size: 0.75em;
   color: #777;
-  text-transform: capitalize; // Make labels like "primary" look nicer
-  margin-top: 2px; // A little space above the label
+  text-transform: capitalize;
+  margin-top: 2px;
 }
 
-// Optional: If website-color-item needs specific adjustments
 .website-color-item {
-  // Example: slightly more width if labels are long
   // min-width: 70px;
+}
+
+.font-list {
+  list-style-type: none;
+  padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+  margin-top: 8px; // Add some space above the list
+}
+
+.font-list-item {
+  background-color: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding-top: 10px;
+  margin-top: 8px; // Add some space above the gallery
+}
+
+.gallery-item {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+
+  a {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.gallery-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 3px;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// Styles for No Results Message
+.no-results-message {
+  background-color: #f8f9fa; // Light grey background
+  border: 1px solid #dee2e6; // Light border
+  color: #495057; // Dark grey text
+  // padding: 15px; // Already handled by being a .result-item or common message style
+  // margin-top: 10px; // Space from header if it is shown. .result-item handles margin-bottom.
+  // border-radius: 4px; // Already handled
+  // text-align: center; // Common message style
+
+  p {
+    margin: 0;
+    font-style: italic;
+  }
 }
